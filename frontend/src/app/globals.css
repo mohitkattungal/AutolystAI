@@ -1,0 +1,283 @@
+@import "tailwindcss";
+
+/* ============================================================
+   AUTOLYST AI — DEEP SPACE INTELLIGENCE DESIGN SYSTEM
+   ============================================================ */
+
+/* ---------- DARK THEME (default) ---------- */
+:root,
+[data-theme="dark"] {
+  --bg-void: #050507;
+  --bg-primary: #0A0B0F;
+  --bg-secondary: #11131A;
+  --bg-elevated: #181B26;
+
+  --gold: #F5A623;
+  --gold-bright: #FFB84D;
+  --gold-deep: #C47D0E;
+  --gold-glow: rgba(245, 166, 35, 0.15);
+  --gold-subtle: rgba(245, 166, 35, 0.06);
+
+  --cyan: #00D4FF;
+  --cyan-bright: #33DDFF;
+  --cyan-deep: #0099CC;
+  --cyan-glow: rgba(0, 212, 255, 0.12);
+  --cyan-subtle: rgba(0, 212, 255, 0.05);
+
+  --violet: #8B5CF6;
+  --violet-glow: rgba(139, 92, 246, 0.12);
+
+  --green: #10B981;
+  --green-glow: rgba(16, 185, 129, 0.12);
+  --amber: #F59E0B;
+  --red: #EF4444;
+  --red-glow: rgba(239, 68, 68, 0.12);
+
+  --text-primary: #F0F2F8;
+  --text-secondary: #9AA3B8;
+  --text-muted: #4A5168;
+  --text-inverse: #050507;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-gold: rgba(245, 166, 35, 0.30);
+  --border-cyan: rgba(0, 212, 255, 0.25);
+
+  --glass-bg: rgba(10, 11, 15, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.04);
+
+  --scrollbar-thumb: rgba(255, 255, 255, 0.12);
+  --scrollbar-track: transparent;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-gold: 0 4px 24px rgba(245, 166, 35, 0.15);
+  --shadow-cyan: 0 4px 24px rgba(0, 212, 255, 0.10);
+}
+
+/* ---------- LIGHT THEME ---------- */
+[data-theme="light"] {
+  --bg-void: #F8F9FC;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F0F1F5;
+  --bg-elevated: #FFFFFF;
+
+  --gold: #D4890A;
+  --gold-bright: #F5A623;
+  --gold-deep: #A86D08;
+  --gold-glow: rgba(212, 137, 10, 0.12);
+  --gold-subtle: rgba(212, 137, 10, 0.04);
+
+  --cyan: #0099CC;
+  --cyan-bright: #00B8E6;
+  --cyan-deep: #007AA3;
+  --cyan-glow: rgba(0, 153, 204, 0.08);
+  --cyan-subtle: rgba(0, 153, 204, 0.04);
+
+  --violet: #7C3AED;
+  --violet-glow: rgba(124, 58, 237, 0.08);
+
+  --green: #059669;
+  --green-glow: rgba(5, 150, 105, 0.08);
+  --amber: #D97706;
+  --red: #DC2626;
+  --red-glow: rgba(220, 38, 38, 0.08);
+
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+  --text-inverse: #FFFFFF;
+
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --border-default: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.15);
+  --border-gold: rgba(212, 137, 10, 0.25);
+  --border-cyan: rgba(0, 153, 204, 0.20);
+
+  --glass-bg: rgba(255, 255, 255, 0.80);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-highlight: rgba(255, 255, 255, 0.60);
+
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-track: transparent;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+  --shadow-gold: 0 4px 24px rgba(212, 137, 10, 0.12);
+  --shadow-cyan: 0 4px 24px rgba(0, 153, 204, 0.08);
+}
+
+/* ---------- TAILWIND THEME INTEGRATION ---------- */
+@theme inline {
+  --color-bg-void: var(--bg-void);
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-elevated: var(--bg-elevated);
+
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-deep: var(--gold-deep);
+
+  --color-cyan: var(--cyan);
+  --color-cyan-bright: var(--cyan-bright);
+  --color-cyan-deep: var(--cyan-deep);
+
+  --color-violet: var(--violet);
+
+  --color-semantic-green: var(--green);
+  --color-semantic-amber: var(--amber);
+  --color-semantic-red: var(--red);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverse: var(--text-inverse);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+  --color-border-gold: var(--border-gold);
+  --color-border-cyan: var(--border-cyan);
+
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+
+  --font-heading: "Syne", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-gold: var(--shadow-gold);
+  --shadow-cyan: var(--shadow-cyan);
+}
+
+/* ---------- BASE ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: "DM Sans", sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ---------- CUSTOM SCROLLBAR ---------- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.20); }
+
+/* ---------- DOT GRID ---------- */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+[data-theme="light"] .dot-grid {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+}
+
+/* ---------- GRADIENT TEXT ---------- */
+.gradient-text-gold-cyan {
+  background: linear-gradient(135deg, var(--gold), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---------- GLASSMORPHISM ---------- */
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+}
+.glass-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+  pointer-events: none;
+}
+
+/* ---------- PULSE KEYFRAMES ---------- */
+@keyframes ai-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(0, 212, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+}
+@keyframes gold-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(245, 166, 35, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 166, 35, 0); }
+}
+.pulse-cyan { animation: ai-pulse 2s ease-in-out infinite; }
+.pulse-gold { animation: gold-pulse 1.5s ease-in-out infinite; }
+
+/* ---------- NEBULA GLOWS ---------- */
+.nebula-gold {
+  position: fixed; top: -20%; right: -10%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(245, 166, 35, 0.08), transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+.nebula-cyan {
+  position: fixed; bottom: -20%; left: -10%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.06), transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+[data-theme="light"] .nebula-gold {
+  background: radial-gradient(circle, rgba(212, 137, 10, 0.06), transparent 70%);
+}
+[data-theme="light"] .nebula-cyan {
+  background: radial-gradient(circle, rgba(0, 153, 204, 0.04), transparent 70%);
+}
+
+/* ---------- SKELETON ---------- */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-secondary) 0%, var(--bg-elevated) 50%, var(--bg-secondary) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* ---------- FLOW LINE ---------- */
+@keyframes flow-line {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* ---------- SELECTION ---------- */
+::selection {
+  background: rgba(245, 166, 35, 0.25);
+  color: var(--text-primary);
+}
