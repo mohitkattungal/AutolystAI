@@ -4,6 +4,9 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import DatasetInterviewPanel from "@/components/dashboard/dataset-interview";
+import AutoInsightsPanel from "@/components/dashboard/auto-insights";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Upload,
   FileSpreadsheet,
@@ -18,7 +21,6 @@ import {
   TrendingUp,
   Users,
   ShoppingCart,
-  Database,
   Bot,
   Zap,
   Target,
@@ -91,27 +93,32 @@ const recentAnalyses = [
     type: "Analysis",
     date: "2 hours ago",
     status: "completed",
+    href: "/dashboard/analysis",
   },
   {
     title: "Customer Segmentation",
     type: "AI Agent",
     date: "Yesterday",
     status: "completed",
+    href: "/dashboard/agent",
   },
   {
     title: "Churn Prediction Model",
     type: "Prediction",
     date: "3 days ago",
     status: "completed",
+    href: "/dashboard/predictions",
   },
 ];
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [processingStage, setProcessingStage] = useState<ProcessingStage>("idle");
   const [dragOver, setDragOver] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [showGoals, setShowGoals] = useState(false);
   const [showInterview, setShowInterview] = useState(false);
+  const [showInsights, setShowInsights] = useState(false);
 
   const simulateProcessing = useCallback((fileName: string) => {
     setUploadedFile(fileName);
@@ -126,8 +133,9 @@ export default function DashboardPage() {
       } else {
         setTimeout(() => {
           setShowGoals(true);
-          // Auto transition to interview after a brief pause
-          setTimeout(() => setShowInterview(true), 1200);
+          // Show insights first, then interview
+          setTimeout(() => setShowInsights(true), 800);
+          setTimeout(() => setShowInterview(true), 2000);
         }, 600);
       }
     };
@@ -164,6 +172,7 @@ export default function DashboardPage() {
     setUploadedFile(null);
     setShowGoals(false);
     setShowInterview(false);
+    setShowInsights(false);
   };
 
   const isProcessing = processingStage !== "idle" && processingStage !== "done";
@@ -334,6 +343,7 @@ export default function DashboardPage() {
                           return (
                             <button
                               key={idx}
+                              onClick={() => router.push("/dashboard/agent")}
                               className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-bg-secondary border border-border-default hover:border-cyan/30 hover:bg-cyan/5 transition-all cursor-pointer text-left group"
                             >
                               <Icon size={16} className="text-cyan shrink-0" />
@@ -359,6 +369,21 @@ export default function DashboardPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* ─── AUTO-INSIGHTS ─── */}
+      <AnimatePresence>
+        {showInsights && uploadedFile && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -10, height: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="mb-8 overflow-hidden"
+          >
+            <AutoInsightsPanel fileName={uploadedFile} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ─── INTERACTIVE AI INTERVIEW ─── */}
       <AnimatePresence>
@@ -446,10 +471,10 @@ export default function DashboardPage() {
       {/* ─── QUICK ACTIONS ROW ─── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
         {[
-          { icon: Bot, label: "Ask AI Agent", desc: "Natural language queries", accent: "cyan" },
-          { icon: BarChart3, label: "New Analysis", desc: "Charts & insights", accent: "gold" },
-          { icon: Zap, label: "Quick Predict", desc: "AutoML in minutes", accent: "violet" },
-          { icon: Database, label: "Manage Data", desc: "Datasets & uploads", accent: "green" },
+          { icon: Bot, label: "Ask AI Agent", desc: "Natural language queries", accent: "cyan", href: "/dashboard/agent" },
+          { icon: BarChart3, label: "New Analysis", desc: "Charts & insights", accent: "gold", href: "/dashboard/analysis" },
+          { icon: Zap, label: "Quick Predict", desc: "AutoML in minutes", accent: "violet", href: "/dashboard/predictions" },
+          { icon: FileText, label: "Reports", desc: "Generate & export", accent: "green", href: "/dashboard/reports" },
         ].map((action, idx) => {
           const Icon = action.icon;
           const borderCls =
@@ -469,8 +494,9 @@ export default function DashboardPage() {
               ? "text-violet"
               : "text-semantic-green";
           return (
-            <button
+            <Link
               key={idx}
+              href={action.href}
               className={`glass-card rounded-xl p-4 text-left transition-all cursor-pointer border border-border-subtle ${borderCls}`}
             >
               <Icon size={20} className={iconCls + " mb-2"} />
@@ -478,7 +504,7 @@ export default function DashboardPage() {
                 {action.label}
               </h4>
               <p className="text-[11px] text-text-muted font-body">{action.desc}</p>
-            </button>
+            </Link>
           );
         })}
       </div>
@@ -489,14 +515,18 @@ export default function DashboardPage() {
           <h2 className="font-heading font-semibold text-base text-text-primary">
             Recent Activity
           </h2>
-          <button className="flex items-center gap-1 text-xs text-text-muted hover:text-text-secondary font-body cursor-pointer transition-colors">
+          <Link
+            href="/dashboard/analysis"
+            className="flex items-center gap-1 text-xs text-text-muted hover:text-gold font-body cursor-pointer transition-colors"
+          >
             View all <ChevronRight size={14} />
-          </button>
+          </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {recentAnalyses.map((item, idx) => (
-            <div
+            <Link
               key={idx}
+              href={item.href}
               className="glass-card rounded-xl p-4 hover:border-border-strong transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between mb-3">
@@ -512,7 +542,7 @@ export default function DashboardPage() {
                 <Clock size={12} />
                 {item.date}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

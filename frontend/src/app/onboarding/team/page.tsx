@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { authApi } from "@/lib/api";
+import api from "@/lib/api";
 
 const industries = [
   { key: "retail", label: "Retail", icon: ShoppingCart },
@@ -60,7 +62,29 @@ export default function TeamOnboarding() {
     setInvites(next);
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    try {
+      // 1. Complete onboarding (set account_type to team)
+      await authApi.completeOnboarding({
+        account_type: "team",
+        industry: industry || undefined,
+      });
+
+      // 2. Create the team workspace
+      await api.post("/teams/", {
+        name: workspaceName || "My Team",
+        company_name: companyName || undefined,
+        industry: industry || undefined,
+      });
+
+      // 3. Invite members (if any emails are filled)
+      const validInvites = invites.filter((inv) => inv.email.trim());
+      if (validInvites.length > 0) {
+        await api.post("/teams/invite/bulk", { invites: validInvites });
+      }
+    } catch {
+      // Continue to dashboard even if backend calls fail
+    }
     router.push("/dashboard");
   };
 

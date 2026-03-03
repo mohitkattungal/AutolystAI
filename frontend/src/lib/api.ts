@@ -3,16 +3,17 @@
 import axios from "axios";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const TOKEN_KEY = "autolyst_token";
 
 const api = axios.create({
   baseURL: `${API_BASE}/api/v1`,
   headers: { "Content-Type": "application/json" },
 });
 
-// ── Request interceptor: attach JWT ──
+// ── Request interceptor: attach JWT from localStorage ──
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("autolyst_token");
+    const token = localStorage.getItem(TOKEN_KEY);
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,7 +26,7 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("autolyst_token");
+      localStorage.removeItem(TOKEN_KEY);
       window.location.href = "/auth/login";
     }
     return Promise.reject(err);
@@ -34,13 +35,35 @@ api.interceptors.response.use(
 
 /* ─── Auth ─── */
 export const authApi = {
-  signup: (data: { email: string; password: string; full_name: string; account_type: string }) =>
-    api.post<{ access_token: string }>("/auth/signup", data),
+  /** Sign up — returns JWT + user */
+  signup: (data: { email: string; password: string; full_name: string }) =>
+    api.post("/auth/signup", data),
 
+  /** Login — returns JWT + user */
   login: (data: { email: string; password: string }) =>
-    api.post<{ access_token: string }>("/auth/login", data),
+    api.post("/auth/login", data),
 
+  /** Get current user profile */
   me: () => api.get("/auth/me"),
+
+  /** Update profile fields (name, industry, job title, avatar) */
+  updateProfile: (data: {
+    full_name?: string;
+    industry?: string;
+    job_title?: string;
+    avatar_url?: string;
+  }) => api.patch("/auth/profile", data),
+
+  /** Complete onboarding — sets account_type, industry, job_title */
+  completeOnboarding: (data: {
+    account_type?: string;
+    industry?: string;
+    job_title?: string;
+  }) => api.post("/auth/onboarding", data),
+
+  /** Change password */
+  changePassword: (data: { current_password: string; new_password: string }) =>
+    api.post("/auth/change-password", data),
 };
 
 /* ─── Datasets ─── */

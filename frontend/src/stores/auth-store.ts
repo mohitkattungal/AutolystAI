@@ -1,14 +1,18 @@
 import { create } from "zustand";
 import { authApi } from "@/lib/api";
 
-interface User {
+export interface User {
   id: string;
   email: string;
   full_name: string;
   account_type: string;
+  role: string;
   industry: string | null;
   job_title: string | null;
+  avatar_url: string | null;
   onboarding_completed: boolean;
+  team_id: string | null;
+  created_at: string;
 }
 
 interface AuthState {
@@ -17,61 +21,101 @@ interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
 
-  login: (email: string, password: string) => Promise<void>;
-  signup: (data: { email: string; password: string; full_name: string; account_type: string }) => Promise<void>;
+  /** Initialize — call once in root layout to restore session from localStorage */
+  initialize: () => void;
+
+  /** Sign up with email + password via backend */
+  signup: (data: {
+    email: string;
+    password: string;
+    full_name: string;
+  }) => Promise<{ error: string | null }>;
+
+  /** Sign in with email + password via backend */
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ error: string | null }>;
+
+  /** Sign out — clear token and user */
   logout: () => void;
-  fetchUser: () => Promise<void>;
-  setToken: (token: string) => void;
+
+  /** Fetch the user profile from backend */
+  fetchProfile: () => Promise<void>;
+
+  /** Get the current access token */
+  getToken: () => string | null;
 }
+
+const TOKEN_KEY = "autolyst_token";
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  token: typeof window !== "undefined" ? localStorage.getItem("autolyst_token") : null,
-  isLoading: false,
+  token: null,
+  isLoading: true,
   isAuthenticated: false,
 
-  setToken: (token: string) => {
-    localStorage.setItem("autolyst_token", token);
-    set({ token });
+  initialize: () => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token) {
+      set({ token, isAuthenticated: true, isLoading: false });
+      get().fetchProfile();
+    } else {
+      set({ isLoading: false });
+    }
+  },
+
+  signup: async ({ email, password, full_name }) => {
+    set({ isLoading: true });
+    try {
+      const res = await authApi.signup({ email, password, full_name });
+      const { access_token, user } = res.data;
+      localStorage.setItem(TOKEN_KEY, access_token);
+      set({ token: access_token, user, isAuthenticated: true, isLoading: false });
+      return { error: null };
+    } catch (err: unknown) {
+      set({ isLoading: false });
+      const message =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        "Signup failed";
+      return { error: message };
+    }
   },
 
   login: async (email, password) => {
     set({ isLoading: true });
     try {
       const res = await authApi.login({ email, password });
-      const token = res.data.access_token;
-      localStorage.setItem("autolyst_token", token);
-      set({ token });
-      await get().fetchUser();
-    } finally {
+      const { access_token, user } = res.data;
+      localStorage.setItem(TOKEN_KEY, access_token);
+      set({ token: access_token, user, isAuthenticated: true, isLoading: false });
+      return { error: null };
+    } catch (err: unknown) {
       set({ isLoading: false });
-    }
-  },
-
-  signup: async (data) => {
-    set({ isLoading: true });
-    try {
-      const res = await authApi.signup(data);
-      const token = res.data.access_token;
-      localStorage.setItem("autolyst_token", token);
-      set({ token });
-      await get().fetchUser();
-    } finally {
-      set({ isLoading: false });
+      const message =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        "Invalid email or password";
+      return { error: message };
     }
   },
 
   logout: () => {
-    localStorage.removeItem("autolyst_token");
+    localStorage.removeItem(TOKEN_KEY);
     set({ user: null, token: null, isAuthenticated: false });
   },
 
-  fetchUser: async () => {
+  fetchProfile: async () => {
     try {
       const res = await authApi.me();
-      set({ user: res.data, isAuthenticated: true });
+      set({ user: res.data });
     } catch {
-      set({ user: null, isAuthenticated: false });
+      // Token invalid — clear auth
+      localStorage.removeItem(TOKEN_KEY);
+      set({ user: null, token: null, isAuthenticated: false });
     }
+  },
+
+  getToken: () => {
+    return get().token;
   },
 }));

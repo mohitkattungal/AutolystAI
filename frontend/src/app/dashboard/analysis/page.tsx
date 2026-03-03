@@ -20,6 +20,7 @@ import {
   Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   BarChart,
   Bar,
@@ -142,12 +143,16 @@ export default function AnalysisPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm">
-            <BookOpen size={14} /> Story Mode
-          </Button>
-          <Button variant="secondary" size="sm">
-            <GitCompareArrows size={14} /> Compare
-          </Button>
+          <Link href="/dashboard/analysis/story">
+            <Button variant="secondary" size="sm">
+              <BookOpen size={14} /> Story Mode
+            </Button>
+          </Link>
+          <Link href="/dashboard/analysis/compare">
+            <Button variant="secondary" size="sm">
+              <GitCompareArrows size={14} /> Compare
+            </Button>
+          </Link>
           <Button variant="secondary" size="sm">
             <Download size={14} /> Export
           </Button>

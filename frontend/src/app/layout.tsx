@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Syne, DM_Sans, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { CommunicationProvider } from "@/components/providers/communication-provider";
+import { AuthProvider } from "@/components/providers/auth-provider";
 import "./globals.css";
 
 const syne = Syne({
@@ -47,7 +49,11 @@ export default function RootLayout({
       <body
         className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <CommunicationProvider>{children}</CommunicationProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, createContext, useContext, type ReactNode } from "react";
+import { useState, useRef, useEffect, createContext, useContext, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,7 +24,10 @@ import {
   X,
   User,
   Sparkles,
+  BookOpen,
+  Crown,
 } from "lucide-react";
+import { useCommunicationLevel } from "@/components/providers/communication-provider";
 
 /* ─── Sidebar Context ─── */
 const SidebarContext = createContext({ collapsed: false });
@@ -45,6 +48,34 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const { level: commLevel } = useCommunicationLevel();
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifications(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const commLevelConfig = {
+    executive: { label: "Executive", icon: Crown, color: "text-gold", bg: "bg-gold/10" },
+    analyst: { label: "Analyst", icon: BarChart3, color: "text-cyan", bg: "bg-cyan/10" },
+    storyteller: { label: "Storyteller", icon: BookOpen, color: "text-violet", bg: "bg-violet/10" },
+  };
+  const currentComm = commLevelConfig[commLevel];
+  const CommIcon = currentComm.icon;
 
   const sidebarW = collapsed ? "w-[72px]" : "w-[260px]";
 
@@ -212,6 +243,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
 
             <div className="flex items-center gap-1.5">
+              {/* Communication Level Badge */}
+              <Link
+                href="/dashboard/settings"
+                className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg ${currentComm.bg} ${currentComm.color} text-[11px] font-body font-medium transition-all hover:opacity-80`}
+                title="AI Communication Level — Click to change"
+              >
+                <CommIcon size={13} />
+                {currentComm.label}
+              </Link>
+
               {/* Theme toggle */}
               <button
                 onClick={toggleTheme}
@@ -222,14 +263,96 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </button>
 
               {/* Notifications */}
-              <button className="relative p-2 rounded-lg hover:bg-bg-elevated text-text-muted hover:text-text-secondary transition-colors cursor-pointer">
-                <Bell size={18} />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-semantic-red" />
-              </button>
+              <div className="relative" ref={notifRef}>
+                <button
+                  onClick={() => { setShowNotifications((v) => !v); setShowUserMenu(false); }}
+                  className="relative p-2 rounded-lg hover:bg-bg-elevated text-text-muted hover:text-text-secondary transition-colors cursor-pointer"
+                >
+                  <Bell size={18} />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-semantic-red" />
+                </button>
+                <AnimatePresence>
+                  {showNotifications && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full mt-2 w-80 rounded-xl bg-bg-primary border border-border-subtle shadow-xl z-50 overflow-hidden"
+                    >
+                      <div className="px-4 py-3 border-b border-border-subtle">
+                        <h4 className="font-heading font-semibold text-sm text-text-primary">Notifications</h4>
+                      </div>
+                      <div className="max-h-64 overflow-y-auto">
+                        {[
+                          { text: "Analysis \"Q4 Revenue\" completed", time: "2 min ago", unread: true },
+                          { text: "Prediction model finished training", time: "1 hour ago", unread: true },
+                          { text: "Report \"Monthly KPIs\" exported", time: "Yesterday", unread: false },
+                        ].map((notif, i) => (
+                          <div
+                            key={i}
+                            className={`px-4 py-3 border-b border-border-subtle last:border-0 hover:bg-bg-elevated transition-colors cursor-pointer ${notif.unread ? "bg-cyan/5" : ""}`}
+                          >
+                            <div className="flex items-start gap-2">
+                              {notif.unread && <span className="mt-1.5 w-2 h-2 rounded-full bg-cyan shrink-0" />}
+                              <div className={notif.unread ? "" : "ml-4"}>
+                                <p className="text-xs font-body text-text-primary">{notif.text}</p>
+                                <p className="text-[10px] font-body text-text-muted mt-0.5">{notif.time}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="px-4 py-2.5 border-t border-border-subtle">
+                        <p className="text-[11px] text-text-muted font-body text-center">All caught up!</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
-              {/* Avatar */}
-              <div className="ml-2 w-8 h-8 rounded-full bg-gold/10 border border-border-gold flex items-center justify-center cursor-pointer hover:border-gold transition-colors">
-                <User size={16} className="text-gold" />
+              {/* User Menu */}
+              <div className="relative ml-2" ref={userMenuRef}>
+                <button
+                  onClick={() => { setShowUserMenu((v) => !v); setShowNotifications(false); }}
+                  className="w-8 h-8 rounded-full bg-gold/10 border border-border-gold flex items-center justify-center cursor-pointer hover:border-gold transition-colors"
+                >
+                  <User size={16} className="text-gold" />
+                </button>
+                <AnimatePresence>
+                  {showUserMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full mt-2 w-56 rounded-xl bg-bg-primary border border-border-subtle shadow-xl z-50 overflow-hidden"
+                    >
+                      <div className="px-4 py-3 border-b border-border-subtle">
+                        <p className="text-sm font-body font-medium text-text-primary">Mohit K.</p>
+                        <p className="text-[11px] font-body text-text-muted">mohit@example.com</p>
+                      </div>
+                      <div className="py-1">
+                        <Link
+                          href="/dashboard/settings"
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-body text-text-secondary hover:bg-bg-elevated hover:text-text-primary transition-colors"
+                        >
+                          <Settings size={15} className="text-text-muted" />
+                          Settings
+                        </Link>
+                        <Link
+                          href="/"
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-body text-semantic-red hover:bg-semantic-red/5 transition-colors"
+                        >
+                          <LogOut size={15} />
+                          Sign Out
+                        </Link>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </header>

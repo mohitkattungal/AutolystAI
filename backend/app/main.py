@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api.routes import auth, datasets, chat, analysis
+from app.api.routes import auth, datasets, chat, analysis, teams
 
 
 @asynccontextmanager
@@ -36,6 +36,7 @@ app.add_middleware(
 
 # ── Routers ──
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(teams.router, prefix="/api/v1")
 app.include_router(datasets.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
 app.include_router(analysis.router, prefix="/api/v1")

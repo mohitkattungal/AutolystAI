@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { authApi } from "@/lib/api";
 
 const industries = [
   { key: "retail", label: "Retail", icon: ShoppingCart },
@@ -47,8 +48,20 @@ export default function IndividualOnboarding() {
   const [jobTitle, setJobTitle] = useState("");
   const [industry, setIndustry] = useState("");
 
-  const handleComplete = () => {
-    // TODO: Save onboarding data to backend
+  const handleComplete = async () => {
+    try {
+      // Save onboarding data — name, industry, job title
+      if (name) {
+        await authApi.updateProfile({ full_name: name });
+      }
+      await authApi.completeOnboarding({
+        account_type: "individual",
+        industry: industry || undefined,
+        job_title: jobTitle || undefined,
+      });
+    } catch {
+      // Continue to dashboard even if backend call fails
+    }
     router.push("/dashboard");
   };
 

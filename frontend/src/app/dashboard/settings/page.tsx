@@ -22,13 +22,18 @@ import {
   Plus,
   Trash2,
   Crown,
+  Sparkles,
+  BarChart3,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/providers/theme-provider";
+import { useCommunicationLevel, type CommunicationLevel } from "@/components/providers/communication-provider";
 
 /* ─── Settings Tabs ─── */
 const tabs = [
   { key: "profile", label: "Profile", icon: User },
+  { key: "ai", label: "AI Preferences", icon: Sparkles },
   { key: "appearance", label: "Appearance", icon: Palette },
   { key: "notifications", label: "Notifications", icon: Bell },
   { key: "api", label: "API Keys", icon: Key },
@@ -39,6 +44,7 @@ const tabs = [
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("profile");
   const { theme, setTheme } = useTheme();
+  const { level: commLevel, setLevel: setCommLevel } = useCommunicationLevel();
   const [showApiKey, setShowApiKey] = useState(false);
 
   return (
@@ -164,6 +170,112 @@ export default function SettingsPage() {
                 <Button variant="destructive" size="sm">
                   Delete Account
                 </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ─── AI Preferences ─── */}
+          {activeTab === "ai" && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <div className="glass-card rounded-xl p-6">
+                <h3 className="font-heading font-semibold text-base text-text-primary mb-2">
+                  Communication Level
+                </h3>
+                <p className="text-sm text-text-secondary font-body mb-5">
+                  Choose how the AI explains its findings. This changes the language, detail level, and format across all insights, reports, and chat responses.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {([
+                    {
+                      value: "executive" as CommunicationLevel,
+                      label: "Executive",
+                      icon: Crown,
+                      desc: "Bottom-line first. Short bullets, key metrics, action items only.",
+                      example: "Revenue grew 12.3% to $337K. Churn risk on 3rd largest customer — recommend immediate retention outreach.",
+                      accent: "gold",
+                    },
+                    {
+                      value: "analyst" as CommunicationLevel,
+                      label: "Analyst",
+                      icon: BarChart3,
+                      desc: "Detailed analysis with methodology, statistical context, and technical depth.",
+                      example: "Pearson correlation r=0.89 between price and volume. Regression shows $1 price increase reduces units by 12.3 (p<0.001, R²=0.76).",
+                      accent: "cyan",
+                    },
+                    {
+                      value: "storyteller" as CommunicationLevel,
+                      label: "Storyteller",
+                      icon: BookOpen,
+                      desc: "Narrative format. Explains context, uses analogies, tells the story behind the data.",
+                      example: "Imagine walking into your West Coast warehouse and discovering your best-selling product is priced $6 less than everywhere else...",
+                      accent: "violet",
+                    },
+                  ]).map((opt) => {
+                    const Icon = opt.icon;
+                    const isActive = commLevel === opt.value;
+                    const borderActive = opt.accent === "gold" ? "border-gold bg-gold/5" : opt.accent === "cyan" ? "border-cyan bg-cyan/5" : "border-violet bg-violet/5";
+                    const iconActive = opt.accent === "gold" ? "text-gold" : opt.accent === "cyan" ? "text-cyan" : "text-violet";
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => setCommLevel(opt.value)}
+                        className={`rounded-xl border p-5 text-left transition-all cursor-pointer ${
+                          isActive ? borderActive : "border-border-default hover:border-border-strong"
+                        }`}
+                      >
+                        <Icon size={22} className={isActive ? iconActive + " mb-3" : "text-text-muted mb-3"} />
+                        <p className={`text-sm font-body font-semibold mb-1 ${isActive ? iconActive : "text-text-primary"}`}>
+                          {opt.label}
+                        </p>
+                        <p className="text-[11px] text-text-muted font-body mb-3 leading-relaxed">
+                          {opt.desc}
+                        </p>
+                        <div className="rounded-lg bg-bg-secondary/80 p-2.5 border border-border-subtle">
+                          <p className="text-[10px] font-mono text-text-muted mb-1">Example output:</p>
+                          <p className="text-[11px] font-body text-text-secondary italic leading-relaxed">
+                            &ldquo;{opt.example}&rdquo;
+                          </p>
+                        </div>
+                        {isActive && (
+                          <div className="mt-3 flex items-center justify-center">
+                            <Check size={14} className={iconActive} />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Auto-Insights Preferences */}
+              <div className="glass-card rounded-xl p-6">
+                <h3 className="font-heading font-semibold text-base text-text-primary mb-5">
+                  Auto-Insights
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    { label: "Show auto-insights after upload", desc: "Automatically surface surprise findings when you upload a dataset", default: true },
+                    { label: "Show quick answers", desc: "Display instant one-line answers to common questions", default: true },
+                    { label: "Enable 'Second Brain' memory", desc: "AI remembers your past analyses to give better recommendations over time", default: true },
+                    { label: "Proactive anomaly alerts", desc: "Get notified when AI detects unusual patterns in your data", default: false },
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between py-2">
+                      <div>
+                        <p className="text-sm font-body text-text-primary">{item.label}</p>
+                        <p className="text-xs text-text-muted font-body">{item.desc}</p>
+                      </div>
+                      <label className="relative inline-flex cursor-pointer">
+                        <input type="checkbox" defaultChecked={item.default} className="sr-only peer" />
+                        <div className="w-10 h-5 bg-bg-elevated rounded-full peer-checked:bg-gold/80 transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-transform peer-checked:after:translate-x-5" />
+                      </label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}

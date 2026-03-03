@@ -5,12 +5,17 @@ import { Logo } from "@/components/ui/logo";
 import { User, Users, ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { authApi } from "@/lib/api";
 
 export default function AccountTypePage() {
   const router = useRouter();
 
-  const handleSelect = (type: "individual" | "team") => {
-    // TODO: Save account type to backend
+  const handleSelect = async (type: "individual" | "team") => {
+    try {
+      await authApi.completeOnboarding({ account_type: type });
+    } catch {
+      // It's OK if backend isn't reachable yet — continue the flow
+    }
     if (type === "individual") {
       router.push("/onboarding/individual");
     } else {

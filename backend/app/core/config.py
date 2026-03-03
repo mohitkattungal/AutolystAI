@@ -9,13 +9,18 @@ class Settings(BaseSettings):
     app_name: str = "AutolystAI"
     debug: bool = False
 
-    # ── Database ──
+    # ── Database (Supabase Postgres) ──
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/autolyst"
+    db_user: str = ""
+    db_password: str = ""
+    db_host: str = ""
+    db_port: int = 6543
+    db_name: str = "postgres"
 
-    # ── Auth ──
-    secret_key: str = "change-me"
+    # ── Auth (custom JWT) ──
+    secret_key: str = "change-me-in-production-use-a-long-random-string"
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 60
+    access_token_expire_minutes: int = 60 * 24  # 24 hours
 
     # ── OpenAI ──
     openai_api_key: str = ""
